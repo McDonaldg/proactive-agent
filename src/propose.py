@@ -85,6 +85,12 @@ def build(profile):
     top = scored[:20]
 
     reqs = open_requests()
+
+    if not top and not reqs:
+        # 材料が無いのに LLM を呼んでも空返答になるだけ。呼ばずに撤退する。
+        print("[propose.build] no scored candidates and no open requests, skipping LLM call")
+        return [], reqs
+
     cons = profile["constraints"]
 
     cand_txt = "\n".join(
