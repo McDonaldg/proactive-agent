@@ -1,0 +1,33 @@
+# 情報源設定
+# weight: 情報源そのものの信頼度。スコアに乗算される。
+
+rss:
+  - id: simonwillison
+    url: https://simonwillison.net/atom/everything/
+    weight: 1.5          # 実検証ベース。個人開発者には最良の単一ソース
+  - id: anthropic_news
+    url: https://www.anthropic.com/news/rss.xml
+    weight: 1.3
+  - id: zenn_ai
+    url: https://zenn.dev/topics/ai/feed
+    weight: 1.0          # 日本語・実装寄り
+  - id: zenn_claude
+    url: https://zenn.dev/topics/claudecode/feed
+    weight: 1.1
+  - id: hatena_it
+    url: https://b.hatena.ne.jp/hotentry/it.rss
+    weight: 0.8          # ノイズ多め。足切りで効かせる
+
+# YouTube はチャンネル RSS を使う（Data API のクォータを消費しない）
+# channel_id は視聴ページの HTML から取得できる
+youtube:
+  - id: yt_example_1
+    channel_id: UCxxxxxxxxxxxxxxxxxxxxxx
+    weight: 1.0
+
+# Hacker News は Algolia API 経由。しきい値で自動的に上澄みだけ取る
+hackernews:
+  min_points: 200
+  window_hours: 48
+  keywords: [ai, llm, agent, claude, mcp, rag, unity, webgl, embedding]
+  weight: 1.2

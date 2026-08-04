@@ -1,0 +1,54 @@
+name: daily-proposal
+
+on:
+  schedule:
+    # UTC 22:00 = JST 翌 07:00。cron は UTC 固定・デフォルトブランチのみ。
+    - cron: "0 22 * * *"
+  workflow_dispatch:
+
+# 同時実行を禁止しないと data/*.jsonl が壊れる
+concurrency:
+  group: daily-proposal
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+
+      # 順序が重要: 先に前回の回答を回収してから、それを踏まえて提案する
+      - name: Harvest feedback
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
+        run: python src/feedback.py
+
+      - name: Collect
+        run: python src/collect.py
+
+      - name: Propose
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
+        run: python src/propose.py
+
+      - name: Persist state
+        run: |
+          git config user.name  "proactive-agent"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/ config/profile.json
+          git diff --staged --quiet || git commit -m "state: $(date -u +%F)"
+          git push

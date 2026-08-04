@@ -1,0 +1,42 @@
+{
+  "_comment": "weight は feedback.py が自動更新する。手で初期値を入れておく。",
+  "topics": {
+    "agent_automation": {
+      "weight": 1.0,
+      "kw": ["agent", "mcp", "claude code", "headless", "workflow", "automation", "cron", "エージェント", "自動化"]
+    },
+    "web_3d": {
+      "weight": 0.9,
+      "kw": ["unity", "cesium", "three.js", "3d tiles", "webgl", "photogrammetry", "plateau", "shader"]
+    },
+    "curation_pipeline": {
+      "weight": 0.8,
+      "kw": ["rss", "embedding", "summarize", "newsletter", "digest", "キュレーション"]
+    },
+    "office_automation": {
+      "weight": 0.7,
+      "kw": ["vba", "excel", "word", "powerpoint", "microsoft lists", "teams", "openpyxl"]
+    },
+    "finance_quant": {
+      "weight": 0.6,
+      "kw": ["derivative", "option", "backtest", "簿記", "会計", "quant", "時系列"]
+    },
+    "learning_tools": {
+      "weight": 0.5,
+      "kw": ["spaced repetition", "fsrs", "anki", "ocr", "transcription", "学習"]
+    }
+  },
+
+  "constraints": {
+    "max_minutes": 60,
+    "max_cost_jpy": 0,
+    "_note": "feedback.py が ⏰ / 💰 の否認を受けてこの値を自動で下げる"
+  },
+
+  "slots": {
+    "request": 1,
+    "continuation": 1,
+    "exploration": 1,
+    "_note": "指名枠が空の週は exploration に振り替える"
+  }
+}
