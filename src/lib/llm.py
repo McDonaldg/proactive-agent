@@ -28,13 +28,22 @@ def client():
     return _client
 
 
-def call(model, system, user, max_tokens=1500, json_mode=False):
+def call(model, system, user, max_tokens=1500, json_mode=False, effort=None):
     """1 回の完了。usage を必ず記録する。"""
+    kwargs = {}
+    if effort:
+        # Sonnet 5 系はデフォルトで adaptive thinking が有効になり、
+        # max_tokens は thinking + 本文の合計に対するハードキャップになる。
+        # 短い JSON 生成のようなタスクでは thinking に max_tokens を食い潰されて
+        # 本文が空になる (stop_reason=max_tokens) ことがあるため、effort で抑える。
+        kwargs["output_config"] = {"effort": effort}
+
     msg = client().messages.create(
         model=model,
         max_tokens=max_tokens,
         system=system,
         messages=[{"role": "user", "content": user}],
+        **kwargs,
     )
     text = "".join(b.text for b in msg.content if b.type == "text")
 
@@ -44,6 +53,12 @@ def call(model, system, user, max_tokens=1500, json_mode=False):
         "in": msg.usage.input_tokens,
         "out": msg.usage.output_tokens,
     })
+
+    if not text:
+        block_types = [b.type for b in msg.content]
+        print(f"[llm.call] EMPTY text from {model} | stop_reason={msg.stop_reason} "
+              f"| content_block_types={block_types} | max_tokens={max_tokens} "
+              f"| out_tokens={msg.usage.output_tokens}")
 
     if not json_mode:
         return text

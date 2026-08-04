@@ -3,6 +3,7 @@
 出力: data/pool.jsonl （URL ハッシュで重複排除済み）
 """
 import hashlib
+import os
 import sys
 import time
 
@@ -10,7 +11,7 @@ import feedparser
 import requests
 import yaml
 
-sys.path.insert(0, __file__.rsplit("/", 2)[0])
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.lib import store  # noqa: E402
 
 RETENTION_DAYS = 21

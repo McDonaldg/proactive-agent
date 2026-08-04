@@ -113,7 +113,11 @@ def build(profile):
 【候補記事(継続枠・探索枠はここから選ぶ)】
 {cand_txt}
 """
-    cards = llm.call(llm.MODEL_WRITE, SYSTEM, user, max_tokens=2000, json_mode=True)
+    # Sonnet 5 はデフォルトで adaptive thinking が有効。max_tokens は thinking を含む
+    # 合計のハードキャップなので、短い JSON 出力でも余裕を持たせ、
+    # かつ effort=low で thinking の消費自体を抑える (stop_reason=max_tokens で
+    # 本文が空になる事故を防ぐ)。
+    cards = llm.call(llm.MODEL_WRITE, SYSTEM, user, max_tokens=8000, json_mode=True, effort="low")
     return cards or [], reqs
 
 
