@@ -32,8 +32,12 @@ def classify(raw, topics):
     return out or {"type": "request", "normalized": raw, "queries": [raw], "topic": None}
 
 
-def adjust_profile(profile, tags, cards):
-    """否認タグに応じて制約と重みを機械的に補正する。LLM は使わない。"""
+def adjust_constraints(profile, tags):
+    """否認タグに応じて制約を機械的に補正する。LLM は使わない。
+
+    no_time/too_costly は特定のカードではなく提案全体への不満なので、
+    そのメッセージに付いたリアクションかどうかに関わらず一律に効かせる。
+    """
     c = profile["constraints"]
     changed = []
 
@@ -45,22 +49,26 @@ def adjust_profile(profile, tags, cards):
         c["max_cost_jpy"] = 0
         changed.append("max_cost_jpy -> 0")
 
+    return changed
+
+
+def adjust_topic_weight(profile, card, tags):
+    """1カード=1メッセージなので、そのカードに付いたリアクションだけで
+    そのカードのトピックの重みを補正できる（他カードを巻き込まない）。"""
+    changed = []
+    t = card.get("topic")
+    if not t or t not in profile["topics"]:
+        return changed
+
     if "off_target" in tags:
-        # 提案に使われたトピックの重みを下げる
-        for card in cards:
-            t = card.get("topic")
-            if t and t in profile["topics"]:
-                profile["topics"][t]["weight"] = round(
-                    max(0.1, profile["topics"][t]["weight"] * 0.85), 2)
-                changed.append(f"{t} weight down")
+        profile["topics"][t]["weight"] = round(
+            max(0.1, profile["topics"][t]["weight"] * 0.85), 2)
+        changed.append(f"{t} weight down")
 
     if "approve" in tags:
-        for card in cards:
-            t = card.get("topic")
-            if t and t in profile["topics"]:
-                profile["topics"][t]["weight"] = round(
-                    min(2.0, profile["topics"][t]["weight"] * 1.1), 2)
-                changed.append(f"{t} weight up")
+        profile["topics"][t]["weight"] = round(
+            min(2.0, profile["topics"][t]["weight"] * 1.1), 2)
+        changed.append(f"{t} weight up")
 
     return changed
 
@@ -75,20 +83,29 @@ def main():
         print("already harvested")
         return
 
-    mid = prop["message_id"]
     profile = store.load_json("config/profile.json")
 
-    tags = discord.get_reactions(mid)
-    replies = discord.get_replies(mid)
+    # 1提案1メッセージなので、カードごとにリアクション/返信を個別に回収する。
+    per_card_tags = []
+    replies = []
+    for card in prop["cards"]:
+        mid = card["message_id"]
+        tags = discord.get_reactions(mid)
+        replies += discord.get_replies(mid)
+        per_card_tags.append((card, tags))
 
-    store.append("decisions", {
-        "ts": store.stamp(),
-        "message_id": mid,
-        "tags": tags,
-        "card_titles": [c["title"] for c in prop["cards"]],
-    })
+        store.append("decisions", {
+            "ts": store.stamp(),
+            "message_id": mid,
+            "slot": card["slot"],
+            "card_title": card["title"],
+            "tags": tags,
+        })
 
-    changed = adjust_profile(profile, tags, prop["cards"])
+    all_tags = [t for _, tags in per_card_tags for t in tags]
+    changed = adjust_constraints(profile, all_tags)
+    for card, tags in per_card_tags:
+        changed += adjust_topic_weight(profile, card, tags)
 
     # 自由入力の取り込み
     added = []
@@ -129,7 +146,7 @@ def main():
     props[-1] = prop
     store.rewrite("proposals", props)
 
-    print(f"tags={tags} replies={len(replies)} new_requests={added} adj={changed}")
+    print(f"tags={all_tags} replies={len(replies)} new_requests={added} adj={changed}")
 
 
 if __name__ == "__main__":

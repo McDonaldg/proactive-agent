@@ -125,19 +125,23 @@ def build(profile):
 SLOT_LABEL = {"request": "指名枠", "continuation": "継続枠", "exploration": "探索枠"}
 
 
-def render(cards, rej):
-    lines = [f"**本日の提案** — 前回傾向: {rej}", ""]
-    for i, c in enumerate(cards, 1):
-        lines.append(f"**{i}. 【{SLOT_LABEL.get(c['slot'], c['slot'])}】{c['title']}**")
-        if c.get("interpretation"):
-            lines.append(f"> 解釈: {c['interpretation']}")
-        lines.append(c["what"])
-        lines.append(f"→ **{c['why']}**")
-        tail = f"⏱ {c['minutes']}分  💰 ¥{c['cost_jpy']}"
-        if c.get("url"):
-            tail += f"  <{c['url']}>"
-        lines.append(tail)
+def render_card(c, rej=None):
+    """1提案 = 1メッセージ。リアクションがどのカードへのものか
+    一意に分かるよう、カードごとに独立したメッセージとして組み立てる。"""
+    lines = []
+    if rej is not None:
+        lines.append(f"**本日の提案** — 前回傾向: {rej}")
         lines.append("")
+    lines.append(f"**【{SLOT_LABEL.get(c['slot'], c['slot'])}】{c['title']}**")
+    if c.get("interpretation"):
+        lines.append(f"> 解釈: {c['interpretation']}")
+    lines.append(c["what"])
+    lines.append(f"→ **{c['why']}**")
+    tail = f"⏱ {c['minutes']}分  💰 ¥{c['cost_jpy']}"
+    if c.get("url"):
+        tail += f"  <{c['url']}>"
+    lines.append(tail)
+    lines.append("")
     lines.append("✅承認 / ⏰時間がない / 🔁既知 / 🎯興味とズレ / 💰コスト高")
     lines.append("_やりたいことがあればこのメッセージに返信してください_")
     return "\n".join(lines)
@@ -151,12 +155,17 @@ def main():
         return
 
     rej = rejection_context()
-    msg_id = discord.post(render(cards, rej))
-    discord.seed_reactions(msg_id)
+
+    # 1提案1メッセージで投稿する。リアクションはメッセージ単位でしか
+    # 判別できないため、まとめて1コメントに出すと「どの提案への反応か」
+    # が分からなくなる。
+    for i, c in enumerate(cards):
+        msg_id = discord.post(render_card(c, rej if i == 0 else None))
+        discord.seed_reactions(msg_id)
+        c["message_id"] = msg_id
 
     store.append("proposals", {
         "ts": store.stamp(),
-        "message_id": msg_id,
         "cards": cards,
         "request_ids": [r["id"] for r in reqs],
     })
@@ -171,7 +180,7 @@ def main():
                     r["status"] = "exhausted"
         store.rewrite("interests", rows)
 
-    print(f"posted {msg_id}")
+    print(f"posted {[c['message_id'] for c in cards]}")
 
 
 if __name__ == "__main__":
