@@ -22,7 +22,7 @@ rss:
 # channel_id は視聴ページの HTML から取得できる
 youtube:
   - id: yt_example_1
-    channel_id: UCxxxxxxxxxxxxxxxxxxxxxx
+    channel_id: UCiMwbmcCSMORJ-85XWhStBw
     weight: 1.0
 
 # Hacker News は Algolia API 経由。しきい値で自動的に上澄みだけ取る
