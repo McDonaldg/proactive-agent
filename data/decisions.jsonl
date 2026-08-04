@@ -3,3 +3,6 @@
 {"ts": "2026-08-04T18:33:49+09:00", "message_id": "1534127377884512290", "slot": "request", "card_title": "深夜タスクの権限待ち停止防止設定", "tags": []}
 {"ts": "2026-08-04T18:33:49+09:00", "message_id": "1534127377884512290", "slot": "continuation", "card_title": "ログ切り詰めcronの動作確認", "tags": []}
 {"ts": "2026-08-04T18:33:49+09:00", "message_id": "1534127377884512290", "slot": "exploration", "card_title": "並列委任で待ち時間を計測", "tags": []}
+{"ts": "2026-08-05T07:50:08+09:00", "message_id": "1534132322268479519", "slot": "request", "card_title": "直列待ち解消の並列委任テスト", "tags": ["approve"]}
+{"ts": "2026-08-05T07:50:09+09:00", "message_id": "1534132333836370003", "slot": "continuation", "card_title": "ログ切り詰めをdry-runで検証", "tags": ["approve"]}
+{"ts": "2026-08-05T07:50:09+09:00", "message_id": "1534132344749949048", "slot": "exploration", "card_title": "Skill Recorderで定型操作を記録", "tags": ["approve"]}
