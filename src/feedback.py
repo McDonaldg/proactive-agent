@@ -86,12 +86,21 @@ def main():
     profile = store.load_json("config/profile.json")
 
     # 1提案1メッセージなので、カードごとにリアクション/返信を個別に回収する。
+    # (移行期対応: 切替前は1メッセージにまとめて投稿していたため、
+    #  カードに message_id が無ければ旧形式のトップレベル message_id を使う)
     per_card_tags = []
     replies = []
+    fetched = {}  # message_id -> tags. 旧形式は複数カードが同じ message_id を
+    # 共有するため、リアクション/返信の二重取得・返信の重複処理を避ける。
     for card in prop["cards"]:
-        mid = card["message_id"]
-        tags = discord.get_reactions(mid)
-        replies += discord.get_replies(mid)
+        mid = card.get("message_id") or prop.get("message_id")
+        if not mid:
+            print(f"[feedback.main] skip card without message_id: {card.get('title')!r}")
+            continue
+        if mid not in fetched:
+            fetched[mid] = discord.get_reactions(mid)
+            replies += discord.get_replies(mid)
+        tags = fetched[mid]
         per_card_tags.append((card, tags))
 
         store.append("decisions", {
