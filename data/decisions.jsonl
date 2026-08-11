@@ -21,3 +21,6 @@
 {"ts": "2026-08-11T07:23:03+09:00", "message_id": "1536136066564882474", "slot": "request", "card_title": "silent failureの自己検知フックを試作", "tags": []}
 {"ts": "2026-08-11T07:23:04+09:00", "message_id": "1536136079999115264", "slot": "continuation", "card_title": "ログ切り詰めスクリプトを他ログにも拡張", "tags": []}
 {"ts": "2026-08-11T07:23:05+09:00", "message_id": "1536136094020669530", "slot": "exploration", "card_title": "GTDトリアージエージェントの起動条件を検証", "tags": []}
+{"ts": "2026-08-12T07:28:12+09:00", "message_id": "1536500234174206004", "slot": "request", "card_title": "サブエージェントのタイムアウト検知を追加", "tags": []}
+{"ts": "2026-08-12T07:28:13+09:00", "message_id": "1536500248040448062", "slot": "continuation", "card_title": "silent failure検知をログ切り詰め処理に適用", "tags": []}
+{"ts": "2026-08-12T07:28:13+09:00", "message_id": "1536500261844164730", "slot": "exploration", "card_title": "GTDトリアージエージェントの自動起動を試す", "tags": []}
