@@ -24,3 +24,6 @@
 {"ts": "2026-08-12T07:28:12+09:00", "message_id": "1536500234174206004", "slot": "request", "card_title": "サブエージェントのタイムアウト検知を追加", "tags": []}
 {"ts": "2026-08-12T07:28:13+09:00", "message_id": "1536500248040448062", "slot": "continuation", "card_title": "silent failure検知をログ切り詰め処理に適用", "tags": []}
 {"ts": "2026-08-12T07:28:13+09:00", "message_id": "1536500261844164730", "slot": "exploration", "card_title": "GTDトリアージエージェントの自動起動を試す", "tags": []}
+{"ts": "2026-08-13T07:26:44+09:00", "message_id": "1536863916314066965", "slot": "request", "card_title": "Claudeログの肥大チェック自動化", "tags": []}
+{"ts": "2026-08-13T07:26:45+09:00", "message_id": "1536863927755866182", "slot": "continuation", "card_title": "無人エージェントのサイレント失敗検知", "tags": []}
+{"ts": "2026-08-13T07:26:45+09:00", "message_id": "1536863940401696868", "slot": "exploration", "card_title": "DBスキーマをMCPで直接見る", "tags": []}
