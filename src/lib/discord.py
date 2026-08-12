@@ -7,6 +7,7 @@
 Bot に必要な権限:
   Send Messages / Read Message History / Add Reactions
 """
+import json
 import os
 import time
 import requests
@@ -32,6 +33,17 @@ def _h():
 def post(content):
     r = requests.post(f"{API}/channels/{CHANNEL}/messages",
                       headers=_h(), json={"content": content}, timeout=30)
+    r.raise_for_status()
+    return r.json()["id"]
+
+
+def post_file(content, image_bytes, filename="proposal.png"):
+    """スライド画像を添付して投稿する。content は画像の下に出す添え文。"""
+    payload = {"payload_json": json.dumps({"content": content}, ensure_ascii=False)}
+    files = {"files[0]": (filename, image_bytes, "image/png")}
+    r = requests.post(f"{API}/channels/{CHANNEL}/messages",
+                      headers={"Authorization": f"Bot {TOKEN}"},
+                      data=payload, files=files, timeout=30)
     r.raise_for_status()
     return r.json()["id"]
 

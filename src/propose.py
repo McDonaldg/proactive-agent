@@ -9,7 +9,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src.lib import store, llm, discord  # noqa: E402
+from src.lib import store, llm, discord, slide  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -122,26 +122,13 @@ def build(profile):
 
 
 # ---------- 4. 整形と投稿 --------------------------------------------------
-SLOT_LABEL = {"request": "指名枠", "continuation": "継続枠", "exploration": "探索枠"}
-
-
-def render_card(c, rej=None):
-    """1提案 = 1メッセージ。リアクションがどのカードへのものか
-    一意に分かるよう、カードごとに独立したメッセージとして組み立てる。"""
+def render_caption(rej=None):
+    """本文はスライド画像に描画するため、メッセージの content には
+    絵文字凡例・返信案内など、画像化する必要のない定型テキストだけを乗せる。"""
     lines = []
     if rej is not None:
         lines.append(f"**本日の提案** — 前回傾向: {rej}")
         lines.append("")
-    lines.append(f"**【{SLOT_LABEL.get(c['slot'], c['slot'])}】{c['title']}**")
-    if c.get("interpretation"):
-        lines.append(f"> 解釈: {c['interpretation']}")
-    lines.append(c["what"])
-    lines.append(f"→ **{c['why']}**")
-    tail = f"⏱ {c['minutes']}分  💰 ¥{c['cost_jpy']}"
-    if c.get("url"):
-        tail += f"  <{c['url']}>"
-    lines.append(tail)
-    lines.append("")
     lines.append("✅承認 / ⏰時間がない / 🔁既知 / 🎯興味とズレ / 💰コスト高")
     lines.append("_やりたいことがあればこのメッセージに返信してください_")
     return "\n".join(lines)
@@ -158,9 +145,11 @@ def main():
 
     # 1提案1メッセージで投稿する。リアクションはメッセージ単位でしか
     # 判別できないため、まとめて1コメントに出すと「どの提案への反応か」
-    # が分からなくなる。
+    # が分からなくなる。本文はスライド画像として添付する。
     for i, c in enumerate(cards):
-        msg_id = discord.post(render_card(c, rej if i == 0 else None))
+        image = slide.render_card_image(c, rej if i == 0 else None)
+        caption = render_caption(rej if i == 0 else None)
+        msg_id = discord.post_file(caption, image, filename=f"proposal_{i}.png")
         discord.seed_reactions(msg_id)
         c["message_id"] = msg_id
 
