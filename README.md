@@ -1,6 +1,7 @@
 # proactive-agent
 
-毎朝 3 枚の提案カードを Discord に出し、リアクションと返信から学習する。
+週3回（月・水・金）、3 枚の提案カードをスライド画像として Discord に出し、
+リアクションと返信から学習する。
 
 ## 全体の流れ
 
@@ -8,7 +9,8 @@
 [collect.py]  RSS + YouTube RSS + HN      LLM なし
      ↓ data/pool.jsonl
 [propose.py]  スコア上位20 → カード3枚     Sonnet 5 x1
-     ↓ Discord に投稿 + 絵文字を先置き
+     ↓ src/lib/slide.py でスライド画像(PNG)化
+     ↓ Discord に画像添付で投稿 + 絵文字を先置き
    （人間: 絵文字を押す / 返信で要望を書く）
      ↓
 [feedback.py] タグ回収 → 重み補正          Haiku x 返信数
@@ -27,6 +29,9 @@
 3. `config/feeds.yaml` の YouTube `channel_id` を実際の値に置換
 4. `config/profile.json` の初期重みを自分の感覚で調整
 5. Actions タブから `daily-proposal` を手動実行して疎通確認
+
+配信は `.github/workflows/daily.yml` の cron で週3回（月・水・金 07:00 JST）に
+設定済み。頻度を変える場合はここの cron 式を変更する。
 
 ## モデル使い分け（src/lib/llm.py に集約）
 

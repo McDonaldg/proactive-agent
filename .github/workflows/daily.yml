@@ -2,8 +2,9 @@ name: daily-proposal
 
 on:
   schedule:
-    # UTC 22:00 = JST 翌 07:00。cron は UTC 固定・デフォルトブランチのみ。
-    - cron: "0 22 * * *"
+    # 週3回(月・水・金) JST 07:00 に配信。cron は UTC 固定・デフォルトブランチのみ。
+    # UTC 日/火/木 22:00 = JST 月/水/金 翌07:00。
+    - cron: "0 22 * * 0,2,4"
   workflow_dispatch:
 
 # 同時実行を禁止しないと data/*.jsonl が壊れる
@@ -26,6 +27,7 @@ jobs:
           python-version: "3.12"
 
       - run: pip install -r requirements.txt
+      - run: playwright install --with-deps chromium
 
       # 順序が重要: 先に前回の回答を回収してから、それを踏まえて提案する
       - name: Harvest feedback
