@@ -75,3 +75,6 @@
 {"ts": "2026-09-11T08:40:25+09:00", "message_id": "1547031076013346891", "slot": "request", "card_title": "e-gov-law-mcpの動作確認", "tags": []}
 {"ts": "2026-09-11T08:40:26+09:00", "message_id": "1547031102026289194", "slot": "continuation", "card_title": "ログ切り詰めスクリプトの導入", "tags": []}
 {"ts": "2026-09-11T08:40:27+09:00", "message_id": "1547031121936515114", "slot": "exploration", "card_title": "Codexによるプラン自動レビュー導入", "tags": []}
+{"ts": "2026-09-14T08:52:02+09:00", "message_id": "1547753746883153960", "slot": "request", "card_title": "Claude/Codex/Hermes使い分け表作成", "tags": []}
+{"ts": "2026-09-14T08:52:02+09:00", "message_id": "1547753772401557645", "slot": "continuation", "card_title": "サブエージェント運用ルールを反映", "tags": []}
+{"ts": "2026-09-14T08:52:03+09:00", "message_id": "1547753800163397702", "slot": "exploration", "card_title": "dbboard MCPでDB確認を自動化", "tags": []}
